@@ -59,10 +59,10 @@
 		<bintray.package>holon-reactor</bintray.package>
 
 		<!-- Holon Core -->
-		<holon.core.version>5.2.0-SNAPSHOT</holon.core.version>
+		<holon.core.version>5.2.0-alpha2-SNAPSHOT</holon.core.version>
 
 		<!-- Reactor -->
-		<reactor.core.version>3.1.7.RELEASE</reactor.core.version>
+		<reactor.version>Bismuth-SR11</reactor.version>
 
 	</properties>
 
@@ -118,5 +118,18 @@
 			</plugin>
 		</plugins>
 	</build>
+
+	<dependencyManagement>
+		<dependencies>
+			<!-- Reactor -->
+			<dependency>
+				<groupId>io.projectreactor</groupId>
+				<artifactId>reactor-bom</artifactId>
+				<version>${reactor.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
 
 </project>
