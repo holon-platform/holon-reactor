@@ -22,7 +22,7 @@
 		<!-- Holon async datastore -->
 		<dependency>
 			<groupId>com.holon-platform.core</groupId>
-			<artifactId>holon-async-datastore</artifactId>
+			<artifactId>holon-core</artifactId>
 			<version>${holon.core.version}</version>
 		</dependency>
 
