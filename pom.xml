@@ -64,11 +64,16 @@
 		<!-- Reactor -->
 		<reactor.version>Bismuth-SR11</reactor.version>
 
+		<!-- Test -->
+		<jackson.test.version>2.9.6</jackson.test.version>
+		<jersey.test.version>2.27</jersey.test.version>
+
 	</properties>
 
 	<modules>
 		<module>datastore</module>
 		<module>http</module>
+		<module>spring</module>
 		<module>bom</module>
 		<module>bom-platform</module>
 		<module>documentation</module>
@@ -119,18 +124,5 @@
 			</plugin>
 		</plugins>
 	</build>
-
-	<dependencyManagement>
-		<dependencies>
-			<!-- Reactor -->
-			<dependency>
-				<groupId>io.projectreactor</groupId>
-				<artifactId>reactor-bom</artifactId>
-				<version>${reactor.version}</version>
-				<type>pom</type>
-				<scope>import</scope>
-			</dependency>
-		</dependencies>
-	</dependencyManagement>
 
 </project>

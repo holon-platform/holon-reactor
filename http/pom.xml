@@ -17,6 +17,19 @@
 
 	<url>https://holon-platform.com</url>
 
+	<dependencyManagement>
+		<dependencies>
+			<!-- Reactor -->
+			<dependency>
+				<groupId>io.projectreactor</groupId>
+				<artifactId>reactor-bom</artifactId>
+				<version>${reactor.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
 	<dependencies>
 
 		<!-- Holon async http -->

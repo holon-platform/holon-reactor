@@ -21,8 +21,8 @@ import com.holonplatform.http.exceptions.HttpClientInvocationException;
 import com.holonplatform.http.exceptions.UnsuccessfulResponseException;
 import com.holonplatform.http.internal.rest.AbstractRequestDefinition;
 import com.holonplatform.http.rest.RequestEntity;
-import com.holonplatform.http.rest.ResponseEntity;
 import com.holonplatform.http.rest.ResponseType;
+import com.holonplatform.reactor.http.ReactiveResponseEntity;
 import com.holonplatform.reactor.http.ReactiveRestClient.ReactiveRequestDefinition;
 
 import reactor.core.publisher.Mono;
@@ -66,7 +66,7 @@ public class DefaultReactiveRequestDefinition extends AbstractRequestDefinition<
 	 * com.holonplatform.http.rest.RequestEntity, com.holonplatform.http.rest.ResponseType)
 	 */
 	@Override
-	public <T, R> Mono<ResponseEntity<T>> invoke(HttpMethod method, RequestEntity<R> requestEntity,
+	public <T, R> Mono<ReactiveResponseEntity<T>> invoke(HttpMethod method, RequestEntity<R> requestEntity,
 			ResponseType<T> responseType) {
 		return invoker.invoke(this, method, requestEntity, responseType, false);
 	}
@@ -78,7 +78,7 @@ public class DefaultReactiveRequestDefinition extends AbstractRequestDefinition<
 	 * HttpMethod, com.holonplatform.http.rest.RequestEntity, com.holonplatform.http.rest.ResponseType)
 	 */
 	@Override
-	public <T, R> Mono<ResponseEntity<T>> invokeForSuccess(HttpMethod method, RequestEntity<R> requestEntity,
+	public <T, R> Mono<ReactiveResponseEntity<T>> invokeForSuccess(HttpMethod method, RequestEntity<R> requestEntity,
 			ResponseType<T> responseType) {
 		return invoker.invoke(this, method, requestEntity, responseType, true);
 	}
@@ -96,8 +96,7 @@ public class DefaultReactiveRequestDefinition extends AbstractRequestDefinition<
 				return error;
 			}
 			return new HttpClientInvocationException(error);
-		}).flatMap(response -> Mono.using(() -> response,
-				r -> r.getPayload().map(p -> Mono.just(p)).orElse(Mono.empty()), r -> r.close()));
+		}).flatMap(r -> r.asMono());
 	}
 
 }

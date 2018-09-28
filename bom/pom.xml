@@ -30,6 +30,11 @@
 				<artifactId>holon-reactor-http</artifactId>
 				<version>${project.version}</version>
 			</dependency>
+			<dependency>
+				<groupId>com.holon-platform.reactor</groupId>
+				<artifactId>holon-reactor-spring</artifactId>
+				<version>${project.version}</version>
+			</dependency>
 
 		</dependencies>
 

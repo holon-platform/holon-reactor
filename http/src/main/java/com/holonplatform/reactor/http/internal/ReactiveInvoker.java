@@ -18,8 +18,8 @@ package com.holonplatform.reactor.http.internal;
 import com.holonplatform.http.HttpMethod;
 import com.holonplatform.http.exceptions.UnsuccessfulResponseException;
 import com.holonplatform.http.rest.RequestEntity;
-import com.holonplatform.http.rest.ResponseEntity;
 import com.holonplatform.http.rest.ResponseType;
+import com.holonplatform.reactor.http.ReactiveResponseEntity;
 import com.holonplatform.reactor.http.ReactiveRestClient.ReactiveRequestDefinition;
 
 import reactor.core.publisher.Mono;
@@ -42,9 +42,10 @@ public interface ReactiveInvoker {
 	 * @param responseType Expected response payload type
 	 * @param onlySuccessfulStatusCode <code>true</code> to return only <code>2xx</code> status code response and throw
 	 *        an {@link UnsuccessfulResponseException} otherwise, <code>false</code> to return any status code responses
-	 * @return A {@link Mono} to handle the {@link ResponseEntity} object as the result of the request invocation
+	 * @return A {@link Mono} to handle the {@link ReactiveResponseEntity} object as the result of the request
+	 *         invocation
 	 */
-	<T, R> Mono<ResponseEntity<T>> invoke(ReactiveRequestDefinition requestDefinition, HttpMethod method,
+	<T, R> Mono<ReactiveResponseEntity<T>> invoke(ReactiveRequestDefinition requestDefinition, HttpMethod method,
 			RequestEntity<R> requestEntity, ResponseType<T> responseType, boolean onlySuccessfulStatusCode);
 
 }
