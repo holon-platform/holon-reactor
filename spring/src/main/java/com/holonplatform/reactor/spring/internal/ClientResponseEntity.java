@@ -117,15 +117,6 @@ public class ClientResponseEntity<T> implements ReactiveResponseEntity<T> {
 
 	/*
 	 * (non-Javadoc)
-	 * @see com.holonplatform.reactor.http.ReactiveResponseEntity#asFlux(com.holonplatform.http.rest.ResponseType)
-	 */
-	@Override
-	public <E> Flux<E> asFlux(ResponseType<E> entityType) {
-		return response.bodyToFlux(ParameterizedTypeReference.forType(entityType.getType()));
-	}
-
-	/*
-	 * (non-Javadoc)
 	 * @see com.holonplatform.core.messaging.Message#getPayload()
 	 */
 	@Override

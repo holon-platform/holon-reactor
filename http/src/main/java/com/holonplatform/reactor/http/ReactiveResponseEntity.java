@@ -61,13 +61,4 @@ public interface ReactiveResponseEntity<T> extends ResponseEntity<T> {
 	 */
 	<E> Flux<E> asFlux(Class<E> entityType);
 
-	/**
-	 * Read the message entity as a {@link Flux} of the specified type., using a {@link ResponseType} representation to
-	 * allow generic types support.
-	 * @param <E> Entity instance type
-	 * @param entityType Entity response type (not null)
-	 * @return A {@link Flux} containing containing the message entity
-	 */
-	<E> Flux<E> asFlux(ResponseType<E> entityType);
-
 }
