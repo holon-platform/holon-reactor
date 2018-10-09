@@ -50,21 +50,17 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.web.client.RestTemplate;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import com.holonplatform.core.internal.utils.ConversionUtils;
-import com.holonplatform.http.HttpResponse;
 import com.holonplatform.http.HttpStatus;
 import com.holonplatform.http.exceptions.UnsuccessfulResponseException;
 import com.holonplatform.http.rest.RequestEntity;
-import com.holonplatform.http.rest.ResponseEntity;
 import com.holonplatform.reactor.http.ReactiveResponseEntity;
 import com.holonplatform.reactor.http.ReactiveRestClient;
 import com.holonplatform.reactor.spring.SpringReactiveRestClient;
 import com.holonplatform.spring.EnableBeanContext;
 import com.holonplatform.test.JerseyTest5;
-import com.holonplatform.test.TestUtils;
 
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -310,12 +306,12 @@ public class TestReactiveRestClient extends JerseyTest5 {
 	protected Application configure() {
 		return new ResourceConfig(TestResource.class);
 	}
-	
+
 	@Test
 	public void testFactory() {
 		ReactiveRestClient client = ReactiveRestClient.create();
 		assertNotNull(client);
-		
+
 		client = ReactiveRestClient.create(SpringReactiveRestClient.class.getName());
 		assertNotNull(client);
 	}
@@ -325,57 +321,55 @@ public class TestReactiveRestClient extends JerseyTest5 {
 
 		final ReactiveRestClient client = SpringReactiveRestClient.create(webClient).defaultTarget(getBaseUri());
 
-		Mono<TestData> td = client.request().path("test").path("data/{id}").resolve("id", 1).getForEntity(TestData.class);
+		Mono<TestData> td = client.request().path("test").path("data/{id}").resolve("id", 1)
+				.getForEntity(TestData.class);
 		StepVerifier.create(td).consumeNextWith(d -> assertEquals(1, d.getCode())).expectComplete().verify();
-		
+
 		Flux<TestData> tds = client.request().path("test").path("data").getAsList(TestData.class);
-		StepVerifier.create(tds)
-		.consumeNextWith(d -> assertEquals(1, d.getCode()))
-		.consumeNextWith(d -> assertEquals(2, d.getCode()))
-		.expectComplete().verify();
-		
-		Mono<ReactiveResponseEntity<TestData>> rspe = client.request().path("test").path("data/{id}").resolve("id", 1).get(TestData.class);
-		StepVerifier.create(rspe)
-		.consumeNextWith(r -> {
+		StepVerifier.create(tds).consumeNextWith(d -> assertEquals(1, d.getCode()))
+				.consumeNextWith(d -> assertEquals(2, d.getCode())).expectComplete().verify();
+
+		Mono<ReactiveResponseEntity<TestData>> rspe = client.request().path("test").path("data/{id}").resolve("id", 1)
+				.get(TestData.class);
+		StepVerifier.create(rspe).consumeNextWith(r -> {
 			assertNotNull(r.getHeaders());
 			assertEquals(TestData.class, r.getPayloadType());
 		}).expectComplete().verify();
-		
-		Mono<String> asString = client.request().path("test").path("data/{id}").resolve("id", 1).get(TestData.class).flatMap(r -> r.asMono(String.class));
+
+		Mono<String> asString = client.request().path("test").path("data/{id}").resolve("id", 1).get(TestData.class)
+				.flatMap(r -> r.asMono(String.class));
 		StepVerifier.create(asString).consumeNextWith(s -> assertNotNull(s)).expectComplete().verify();
-		
+
 		Mono<ReactiveResponseEntity<Void>> rsp = client.request().path("test").path("data/save")
 				.put(RequestEntity.json(new TestData(7, "testPost")));
-		StepVerifier.create(rsp)
-		.consumeNextWith(r -> assertEquals(HttpStatus.ACCEPTED, r.getStatus())).expectComplete().verify();
+		StepVerifier.create(rsp).consumeNextWith(r -> assertEquals(HttpStatus.ACCEPTED, r.getStatus())).expectComplete()
+				.verify();
 
 		rsp = client.request().path("test").path("formParams")
 				.post(RequestEntity.form(RequestEntity.formBuilder().set("one", "1").set("two", "1").build()));
-		StepVerifier.create(rsp)
-		.consumeNextWith(r -> assertEquals(HttpStatus.OK, r.getStatus())).expectComplete().verify();
+		StepVerifier.create(rsp).consumeNextWith(r -> assertEquals(HttpStatus.OK, r.getStatus())).expectComplete()
+				.verify();
 
 	}
 
-	
 	@Test
 	public void testBean() {
 
 		final ReactiveRestClient client = ReactiveRestClient.create().defaultTarget(getBaseUri());
 
-		Mono<TestData> td = client.request().path("test").path("data/{id}").resolve("id", 1).getForEntity(TestData.class);
+		Mono<TestData> td = client.request().path("test").path("data/{id}").resolve("id", 1)
+				.getForEntity(TestData.class);
 		StepVerifier.create(td).consumeNextWith(d -> assertEquals(1, d.getCode())).expectComplete().verify();
-		
+
 	}
 
 	@Test
 	public void testReads() {
 		final ReactiveRestClient client = SpringReactiveRestClient.create(webClient).defaultTarget(getBaseUri());
 
-		Mono<TestData> res = client.request().path("test").path("data2/{id}").resolve("id", 1)
-				.get(TestData.class).flatMap(r -> r.asMono(TestData.class));
-		StepVerifier.create(res)
-		.consumeNextWith(d -> assertEquals(1, d.getCode()))
-		.expectComplete().verify();
+		Mono<TestData> res = client.request().path("test").path("data2/{id}").resolve("id", 1).get(TestData.class)
+				.flatMap(r -> r.asMono(TestData.class));
+		StepVerifier.create(res).consumeNextWith(d -> assertEquals(1, d.getCode())).expectComplete().verify();
 
 	}
 
@@ -385,8 +379,7 @@ public class TestReactiveRestClient extends JerseyTest5 {
 		final ReactiveRestClient client = SpringReactiveRestClient.create(webClient).defaultTarget(getBaseUri());
 
 		Mono<InputStream> s = client.request().path("test").path("stream").getForStream();
-		StepVerifier.create(s)
-		.consumeNextWith(r -> {
+		StepVerifier.create(s).consumeNextWith(r -> {
 			try {
 				byte[] bytes = ConversionUtils.convertInputStreamToBytes(r);
 				assertTrue(Arrays.equals(new byte[] { 1, 2, 3 }, bytes));
@@ -397,46 +390,30 @@ public class TestReactiveRestClient extends JerseyTest5 {
 
 	}
 
-	/*
 	@Test
 	public void testErrors() {
 		final ReactiveRestClient client = SpringReactiveRestClient.create(webClient).defaultTarget(getBaseUri());
 
-		ResponseEntity<TestData> r2 = client.request().path("test").path("data2/{id}").resolve("id", -1)
+		Mono<ReactiveResponseEntity<TestData>> r2 = client.request().path("test").path("data2/{id}").resolve("id", -1)
 				.get(TestData.class);
-		assertNotNull(r2);
-		assertEquals(HttpStatus.BAD_REQUEST, r2.getStatus());
+		StepVerifier.create(r2).consumeNextWith(r -> assertEquals(HttpStatus.BAD_REQUEST, r.getStatus()))
+				.expectComplete().verify();
 
-		ApiError error = r2.as(ApiError.class).orElse(null);
-		assertNotNull(error);
-		assertEquals("ERR000", error.getCode());
+		Mono<ApiError> error = client.request().path("test").path("data2/{id}").resolve("id", -1).get(TestData.class)
+				.flatMap(r -> r.asMono(ApiError.class));
+		StepVerifier.create(error).consumeNextWith(e -> assertEquals("ERR000", e.getCode())).expectComplete().verify();
 
-		TestUtils.expectedException(UnsuccessfulResponseException.class, () -> {
-			client.request().path("test").path("data2/{id}").resolve("id", -1).getForEntity(TestData.class)
-					.orElse(null);
-		});
+		Mono<TestData> fail = client.request().path("test").path("data2/{id}").resolve("id", -1)
+				.getForEntity(TestData.class);
+		StepVerifier.create(fail).expectError(UnsuccessfulResponseException.class).verify();
 
-		try {
-			client.request().path("test").path("data2/{id}").resolve("id", -1).getForEntity(TestData.class)
-					.orElse(null);
-		} catch (UnsuccessfulResponseException e) {
-			assertEquals(HttpStatus.BAD_REQUEST, e.getStatus().orElse(null));
-			assertNotNull(e.getResponse());
-
-			ApiError err = e.getResponse().as(ApiError.class).orElse(null);
-			assertNotNull(err);
-			assertEquals("ERR000", err.getCode());
-		}
-
-		ResponseEntity<?> rsp = client.request().path("test").path("data/save")
-				.put(RequestEntity.json(new TestData(-1, "testErr")));
-
-		assertNotNull(rsp);
-		assertEquals(HttpStatus.BAD_REQUEST, rsp.getStatus());
-
-		error = rsp.as(ApiError.class).orElse(null);
-		assertNotNull(error);
-		assertEquals("ERR000", error.getCode());
+		fail = client.request().path("test").path("data2/{id}").resolve("id", -1).getForEntity(TestData.class);
+		StepVerifier.create(fail).expectErrorSatisfies(e -> {
+			assertTrue(e instanceof UnsuccessfulResponseException);
+			UnsuccessfulResponseException ure = (UnsuccessfulResponseException) e;
+			assertEquals(HttpStatus.BAD_REQUEST, ure.getStatus().orElse(null));
+			assertNotNull(ure.getResponse());
+		}).verify();
 
 	}
 
@@ -445,31 +422,39 @@ public class TestReactiveRestClient extends JerseyTest5 {
 
 		final ReactiveRestClient client = SpringReactiveRestClient.create(webClient).defaultTarget(getBaseUri());
 
-		ResponseEntity<?> rsp = client.request().path("test").path("status").path("400").get(Void.class);
-		assertEquals(HttpStatus.BAD_REQUEST, rsp.getStatus());
+		Mono<ReactiveResponseEntity<Void>> rsp = client.request().path("test").path("status").path("400")
+				.get(Void.class);
+		StepVerifier.create(rsp).consumeNextWith(r -> assertEquals(HttpStatus.BAD_REQUEST, r.getStatus()))
+				.expectComplete().verify();
 
 		rsp = client.request().path("test").path("status").path("401").get(Void.class);
-		assertEquals(HttpStatus.UNAUTHORIZED, rsp.getStatus());
+		StepVerifier.create(rsp).consumeNextWith(r -> assertEquals(HttpStatus.UNAUTHORIZED, r.getStatus()))
+				.expectComplete().verify();
 
 		rsp = client.request().path("test").path("status").path("403").get(Void.class);
-		assertEquals(HttpStatus.FORBIDDEN, rsp.getStatus());
+		StepVerifier.create(rsp).consumeNextWith(r -> assertEquals(HttpStatus.FORBIDDEN, r.getStatus()))
+				.expectComplete().verify();
 
 		rsp = client.request().path("test").path("status").path("405").get(Void.class);
-		assertEquals(HttpStatus.METHOD_NOT_ALLOWED, rsp.getStatus());
+		StepVerifier.create(rsp).consumeNextWith(r -> assertEquals(HttpStatus.METHOD_NOT_ALLOWED, r.getStatus()))
+				.expectComplete().verify();
 
 		rsp = client.request().path("test").path("status").path("406").get(Void.class);
-		assertEquals(HttpStatus.NOT_ACCEPTABLE, rsp.getStatus());
+		StepVerifier.create(rsp).consumeNextWith(r -> assertEquals(HttpStatus.NOT_ACCEPTABLE, r.getStatus()))
+				.expectComplete().verify();
 
 		rsp = client.request().path("test").path("status").path("415").get(Void.class);
-		assertEquals(HttpStatus.UNSUPPORTED_MEDIA_TYPE, rsp.getStatus());
+		StepVerifier.create(rsp).consumeNextWith(r -> assertEquals(HttpStatus.UNSUPPORTED_MEDIA_TYPE, r.getStatus()))
+				.expectComplete().verify();
 
 		rsp = client.request().path("test").path("status").path("500").get(Void.class);
-		assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, rsp.getStatus());
+		StepVerifier.create(rsp).consumeNextWith(r -> assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, r.getStatus()))
+				.expectComplete().verify();
 
 		rsp = client.request().path("test").path("status").path("503").get(Void.class);
-		assertEquals(HttpStatus.SERVICE_UNAVAILABLE, rsp.getStatus());
+		StepVerifier.create(rsp).consumeNextWith(r -> assertEquals(HttpStatus.SERVICE_UNAVAILABLE, r.getStatus()))
+				.expectComplete().verify();
 
 	}
-	*/
 
 }
