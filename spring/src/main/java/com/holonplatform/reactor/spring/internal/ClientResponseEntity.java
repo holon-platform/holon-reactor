@@ -44,10 +44,6 @@ public class ClientResponseEntity<T> implements ReactiveResponseEntity<T> {
 	private final ClientResponse response;
 	private final ResponseType<T> type;
 
-	/**
-	 * @param reponse
-	 * @param type
-	 */
 	public ClientResponseEntity(ClientResponse response, ResponseType<T> type) {
 		super();
 		this.response = response;
