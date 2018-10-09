@@ -15,6 +15,9 @@
  */
 package com.holonplatform.reactor.http.internal;
 
+import java.io.InputStream;
+import java.util.List;
+
 import com.holonplatform.core.internal.utils.ObjectUtils;
 import com.holonplatform.http.HttpMethod;
 import com.holonplatform.http.exceptions.HttpClientInvocationException;
@@ -25,6 +28,7 @@ import com.holonplatform.http.rest.ResponseType;
 import com.holonplatform.reactor.http.ReactiveResponseEntity;
 import com.holonplatform.reactor.http.ReactiveRestClient.ReactiveRequestDefinition;
 
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 /**
@@ -97,6 +101,39 @@ public class DefaultReactiveRequestDefinition extends AbstractRequestDefinition<
 			}
 			return new HttpClientInvocationException(error);
 		}).flatMap(r -> r.asMono());
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see com.holonplatform.reactor.http.ReactiveRestClient.ReactiveInvocation#invokeForStream(com.holonplatform.http.
+	 * HttpMethod, com.holonplatform.http.rest.RequestEntity)
+	 */
+	@Override
+	public <R> Mono<InputStream> invokeForStream(HttpMethod method, RequestEntity<R> requestEntity) {
+		return invoker.invoke(this, method, requestEntity, ResponseType.of(InputStream.class), true)
+				.onErrorMap(error -> {
+					if (error instanceof UnsuccessfulResponseException) {
+						return error;
+					}
+					return new HttpClientInvocationException(error);
+				}).flatMap(r -> r.asInputStream());
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see com.holonplatform.reactor.http.ReactiveRestClient.ReactiveInvocation#invokeForFlux(com.holonplatform.http.
+	 * HttpMethod, com.holonplatform.http.rest.RequestEntity, java.lang.Class)
+	 */
+	@Override
+	public <T, R> Flux<T> invokeForFlux(HttpMethod method, RequestEntity<R> requestEntity,
+			Class<T> responseElementType) {
+		final ResponseType<List<T>> rt = ResponseType.of(responseElementType, List.class);
+		return invoker.invoke(this, method, requestEntity, rt, true).onErrorMap(error -> {
+			if (error instanceof UnsuccessfulResponseException) {
+				return error;
+			}
+			return new HttpClientInvocationException(error);
+		}).flatMapMany(r -> r.asFlux(responseElementType));
 	}
 
 }

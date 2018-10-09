@@ -15,10 +15,8 @@
  */
 package com.holonplatform.reactor.http;
 
-import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.net.URI;
-import java.util.Collections;
 import java.util.List;
 
 import com.holonplatform.core.internal.utils.ClassUtils;
@@ -60,7 +58,8 @@ public interface ReactiveRestClient extends RestClientOperations<ReactiveRestCli
 		 * @param method Request method
 		 * @param requestEntity Request entity
 		 * @param responseType Expected response payload type
-		 * @return A {@link Mono} to handle the {@link ReactiveResponseEntity} object as the result of the request invocation
+		 * @return A {@link Mono} to handle the {@link ReactiveResponseEntity} object as the result of the request
+		 *         invocation
 		 * @throws HttpClientInvocationException Internal invocation failure (for example, an I/O error on communication
 		 *         channel or expected and actual payload type mismatch)
 		 */
@@ -76,7 +75,8 @@ public interface ReactiveRestClient extends RestClientOperations<ReactiveRestCli
 		 * @param method Request method
 		 * @param requestEntity Request entity
 		 * @param responseType Expected response payload type
-		 * @return A {@link Mono} to handle the {@link ReactiveResponseEntity} object as a result of the request invocation
+		 * @return A {@link Mono} to handle the {@link ReactiveResponseEntity} object as a result of the request
+		 *         invocation
 		 * @throws HttpClientInvocationException Internal invocation failure (for example, an I/O error on communication
 		 *         channel or expected and actual payload type mismatch)
 		 * @throws UnsuccessfulResponseException In case the status code of the response returned by the server is not a
@@ -103,13 +103,43 @@ public interface ReactiveRestClient extends RestClientOperations<ReactiveRestCli
 		@Override
 		<T, R> Mono<T> invokeForEntity(HttpMethod method, RequestEntity<R> requestEntity, ResponseType<T> responseType);
 
+		/**
+		 * Invoke the request and asynchronously receive back the response as a {@link Flux} of response entity
+		 * elements.
+		 * @param <T> Response type
+		 * @param <R> Request entity type
+		 * @param method Request method
+		 * @param requestEntity Request entity
+		 * @param responseElementType Expected response entity elements type
+		 * @return A {@link Flux} to handle the response payload elements
+		 * @throws HttpClientInvocationException Internal invocation failure (for example, an I/O error on communication
+		 *         channel or expected and actual payload type mismatch)
+		 * @throws UnsuccessfulResponseException In case the status code of the response returned by the server is not a
+		 *         successful type status code, i.e. it is not a <code>2xx</code> status code
+		 */
+		<T, R> Flux<T> invokeForFlux(HttpMethod method, RequestEntity<R> requestEntity, Class<T> responseElementType);
+
+		/**
+		 * Invoke the request and asynchronously receive back the response as a raw {@link InputStream}.
+		 * @param <R> Request entity type
+		 * @param method Request method
+		 * @param requestEntity Request entity
+		 * @return A {@link Mono} to handle the response payload stream * @throws HttpClientInvocationException Internal
+		 *         invocation failure (for example, an I/O error on communication channel or expected and actual payload
+		 *         type mismatch)
+		 * @throws UnsuccessfulResponseException In case the status code of the response returned by the server is not a
+		 *         successful type status code, i.e. it is not a <code>2xx</code> status code
+		 */
+		<R> Mono<InputStream> invokeForStream(HttpMethod method, RequestEntity<R> requestEntity);
+
 		// GET
 
 		/**
 		 * Invoke the request using <code>GET</code> method and asynchronously receive a response back.
 		 * @param <T> Response type
 		 * @param responseType Expected response payload type
-		 * @return A {@link Mono} to handle the {@link ReactiveResponseEntity} object as a result of the request invocation
+		 * @return A {@link Mono} to handle the {@link ReactiveResponseEntity} object as a result of the request
+		 *         invocation
 		 * @throws HttpClientInvocationException Internal invocation failure (for example, an I/O error on communication
 		 *         channel or expected and actual payload type mismatch)
 		 */
@@ -122,7 +152,8 @@ public interface ReactiveRestClient extends RestClientOperations<ReactiveRestCli
 		 * Invoke the request using <code>GET</code> method and asynchronously receive a response back.
 		 * @param <T> Response type
 		 * @param responseType Expected response payload type
-		 * @return A {@link Mono} to handle the {@link ReactiveResponseEntity} object as a result of the request invocation
+		 * @return A {@link Mono} to handle the {@link ReactiveResponseEntity} object as a result of the request
+		 *         invocation
 		 * @throws HttpClientInvocationException Internal invocation failure (for example, an I/O error on communication
 		 *         channel or expected and actual payload type mismatch)
 		 */
@@ -176,8 +207,7 @@ public interface ReactiveRestClient extends RestClientOperations<ReactiveRestCli
 		 */
 		@Override
 		default Mono<InputStream> getForStream() {
-			return invokeForEntity(HttpMethod.GET, null, ResponseType.of(InputStream.class))
-					.defaultIfEmpty(new ByteArrayInputStream(new byte[0]));
+			return invokeForStream(HttpMethod.GET, null);
 		}
 
 		/**
@@ -194,8 +224,7 @@ public interface ReactiveRestClient extends RestClientOperations<ReactiveRestCli
 		 */
 		@Override
 		default <T> Flux<T> getAsList(Class<T> responseType) {
-			final ResponseType<List<T>> rt = ResponseType.of(responseType, List.class);
-			return getForEntity(rt).defaultIfEmpty(Collections.emptyList()).flatMapIterable(l -> l);
+			return invokeForFlux(HttpMethod.GET, null, responseType);
 		}
 
 		// POST
@@ -208,7 +237,8 @@ public interface ReactiveRestClient extends RestClientOperations<ReactiveRestCli
 		 * invocation. Refer to the other <code>post</code> methods to obtain a response payload.
 		 * </p>
 		 * @param entity Request payload
-		 * @return A {@link Mono} to handle the {@link ReactiveResponseEntity} object as a result of the request invocation
+		 * @return A {@link Mono} to handle the {@link ReactiveResponseEntity} object as a result of the request
+		 *         invocation
 		 * @throws HttpClientInvocationException Internal invocation failure (for example, an I/O error on communication
 		 *         channel or expected and actual payload type mismatch)
 		 */
@@ -223,7 +253,8 @@ public interface ReactiveRestClient extends RestClientOperations<ReactiveRestCli
 		 * @param <T> Response type
 		 * @param entity Request payload
 		 * @param responseType Expected response payload type
-		 * @return A {@link Mono} to handle the {@link ReactiveResponseEntity} object as a result of the request invocation
+		 * @return A {@link Mono} to handle the {@link ReactiveResponseEntity} object as a result of the request
+		 *         invocation
 		 * @throws HttpClientInvocationException Internal invocation failure (for example, an I/O error on communication
 		 *         channel or expected and actual payload type mismatch)
 		 */
@@ -238,7 +269,8 @@ public interface ReactiveRestClient extends RestClientOperations<ReactiveRestCli
 		 * @param <T> Response type
 		 * @param entity Request payload
 		 * @param responseType Expected response payload type
-		 * @return A {@link Mono} to handle the {@link ReactiveResponseEntity} object as a result of the request invocation
+		 * @return A {@link Mono} to handle the {@link ReactiveResponseEntity} object as a result of the request
+		 *         invocation
 		 * @throws HttpClientInvocationException Internal invocation failure (for example, an I/O error on communication
 		 *         channel or expected and actual payload type mismatch)
 		 */
@@ -309,7 +341,8 @@ public interface ReactiveRestClient extends RestClientOperations<ReactiveRestCli
 		 * invocation. Refer to the other <code>post</code> methods to obtain a response payload.
 		 * </p>
 		 * @param entity Request payload
-		 * @return A {@link Mono} to handle the {@link ReactiveResponseEntity} object as a result of the request invocation
+		 * @return A {@link Mono} to handle the {@link ReactiveResponseEntity} object as a result of the request
+		 *         invocation
 		 * @throws HttpClientInvocationException Internal invocation failure (for example, an I/O error on communication
 		 *         channel or expected and actual payload type mismatch)
 		 */
@@ -324,7 +357,8 @@ public interface ReactiveRestClient extends RestClientOperations<ReactiveRestCli
 		 * @param <T> Response type
 		 * @param entity Request payload
 		 * @param responseType Expected response payload type
-		 * @return A {@link Mono} to handle the {@link ReactiveResponseEntity} object as a result of the request invocation
+		 * @return A {@link Mono} to handle the {@link ReactiveResponseEntity} object as a result of the request
+		 *         invocation
 		 * @throws HttpClientInvocationException Internal invocation failure (for example, an I/O error on communication
 		 *         channel or expected and actual payload type mismatch)
 		 */
@@ -339,7 +373,8 @@ public interface ReactiveRestClient extends RestClientOperations<ReactiveRestCli
 		 * @param <T> Response type
 		 * @param entity Request payload
 		 * @param responseType Expected response payload type
-		 * @return A {@link Mono} to handle the {@link ReactiveResponseEntity} object as a result of the request invocation
+		 * @return A {@link Mono} to handle the {@link ReactiveResponseEntity} object as a result of the request
+		 *         invocation
 		 * @throws HttpClientInvocationException Internal invocation failure (for example, an I/O error on communication
 		 *         channel or expected and actual payload type mismatch)
 		 */
@@ -394,7 +429,8 @@ public interface ReactiveRestClient extends RestClientOperations<ReactiveRestCli
 		 * invocation. Refer to the other <code>post</code> methods to obtain a response payload.
 		 * </p>
 		 * @param entity Request payload
-		 * @return A {@link Mono} to handle the {@link ReactiveResponseEntity} object as a result of the request invocation
+		 * @return A {@link Mono} to handle the {@link ReactiveResponseEntity} object as a result of the request
+		 *         invocation
 		 * @throws HttpClientInvocationException Internal invocation failure (for example, an I/O error on communication
 		 *         channel or expected and actual payload type mismatch)
 		 */
@@ -409,7 +445,8 @@ public interface ReactiveRestClient extends RestClientOperations<ReactiveRestCli
 		 * @param <T> Response type
 		 * @param entity Request payload
 		 * @param responseType Expected response payload type
-		 * @return A {@link Mono} to handle the {@link ReactiveResponseEntity} object as a result of the request invocation
+		 * @return A {@link Mono} to handle the {@link ReactiveResponseEntity} object as a result of the request
+		 *         invocation
 		 * @throws HttpClientInvocationException Internal invocation failure (for example, an I/O error on communication
 		 *         channel or expected and actual payload type mismatch)
 		 * @throws UnsuccessfulResponseException In case the status code of the response returned by the server is not a
@@ -426,7 +463,8 @@ public interface ReactiveRestClient extends RestClientOperations<ReactiveRestCli
 		 * @param <T> Response type
 		 * @param entity Request payload
 		 * @param responseType Expected response payload type
-		 * @return A {@link Mono} to handle the {@link ReactiveResponseEntity} object as a result of the request invocation
+		 * @return A {@link Mono} to handle the {@link ReactiveResponseEntity} object as a result of the request
+		 *         invocation
 		 * @throws HttpClientInvocationException Internal invocation failure (for example, an I/O error on communication
 		 *         channel or expected and actual payload type mismatch)
 		 * @throws UnsuccessfulResponseException In case the status code of the response returned by the server is not a
@@ -481,7 +519,8 @@ public interface ReactiveRestClient extends RestClientOperations<ReactiveRestCli
 		 * The response type is conventionally of {@link Void} type, because no response paylod is expected from this
 		 * invocation. Refer to the other <code>post</code> methods to obtain a response payload.
 		 * </p>
-		 * @return A {@link Mono} to handle the {@link ReactiveResponseEntity} object as a result of the request invocation
+		 * @return A {@link Mono} to handle the {@link ReactiveResponseEntity} object as a result of the request
+		 *         invocation
 		 * @throws HttpClientInvocationException Internal invocation failure (for example, an I/O error on communication
 		 *         channel)
 		 */
@@ -508,7 +547,8 @@ public interface ReactiveRestClient extends RestClientOperations<ReactiveRestCli
 		 * Invoke the request asynchronously using the <code>DELETE</code> method and receive a response back.
 		 * @param <T> Response type
 		 * @param responseType Expected response payload type
-		 * @return A {@link Mono} to handle the {@link ReactiveResponseEntity} object as a result of the request invocation
+		 * @return A {@link Mono} to handle the {@link ReactiveResponseEntity} object as a result of the request
+		 *         invocation
 		 * @throws HttpClientInvocationException Internal invocation failure (for example, an I/O error on communication
 		 *         channel or expected and actual payload type mismatch)
 		 */
@@ -521,7 +561,8 @@ public interface ReactiveRestClient extends RestClientOperations<ReactiveRestCli
 		 * Invoke the request using <code>DELETE</code> method and asynchronously receive a response back.
 		 * @param <T> Response type
 		 * @param responseType Response payload generic type representation
-		 * @return A {@link Mono} to handle the {@link ReactiveResponseEntity} object as a result of the request invocation
+		 * @return A {@link Mono} to handle the {@link ReactiveResponseEntity} object as a result of the request
+		 *         invocation
 		 * @throws HttpClientInvocationException Internal invocation failure (for example, an I/O error on communication
 		 *         channel or expected and actual payload type mismatch)
 		 */
@@ -572,7 +613,8 @@ public interface ReactiveRestClient extends RestClientOperations<ReactiveRestCli
 		 * The response type is conventionally of {@link Void} type, because no response paylod is expected from this
 		 * invocation. Refer to the other <code>post</code> methods to obtain a response payload.
 		 * </p>
-		 * @return A {@link Mono} to handle the {@link ReactiveResponseEntity} object as a result of the request invocation
+		 * @return A {@link Mono} to handle the {@link ReactiveResponseEntity} object as a result of the request
+		 *         invocation
 		 * @throws HttpClientInvocationException Internal invocation failure (for example, an I/O error on communication
 		 *         channel)
 		 */
@@ -585,7 +627,8 @@ public interface ReactiveRestClient extends RestClientOperations<ReactiveRestCli
 		 * Invoke the request using <code>OPTIONS</code> method and asynchronously receive a response back.
 		 * @param <T> Response type
 		 * @param responseType Expected response payload type
-		 * @return A {@link Mono} to handle the {@link ReactiveResponseEntity} object as a result of the request invocation
+		 * @return A {@link Mono} to handle the {@link ReactiveResponseEntity} object as a result of the request
+		 *         invocation
 		 * @throws HttpClientInvocationException Internal invocation failure (for example, an I/O error on communication
 		 *         channel or expected and actual payload type mismatch)
 		 */
@@ -598,7 +641,8 @@ public interface ReactiveRestClient extends RestClientOperations<ReactiveRestCli
 		 * Invoke the request using <code>OPTIONS</code> method and asynchronously receive a response back.
 		 * @param <T> Response type
 		 * @param responseType Response payload generic type representation
-		 * @return A {@link Mono} to handle the {@link ReactiveResponseEntity} object as a result of the request invocation
+		 * @return A {@link Mono} to handle the {@link ReactiveResponseEntity} object as a result of the request
+		 *         invocation
 		 * @throws HttpClientInvocationException Internal invocation failure (for example, an I/O error on communication
 		 *         channel or expected and actual payload type mismatch)
 		 */
@@ -649,7 +693,8 @@ public interface ReactiveRestClient extends RestClientOperations<ReactiveRestCli
 		 * The response type is conventionally of {@link Void} type, because no response paylod is expected from this
 		 * invocation. Refer to the other <code>post</code> methods to obtain a response payload.
 		 * </p>
-		 * @return A {@link Mono} to handle the {@link ReactiveResponseEntity} object as a result of the request invocation
+		 * @return A {@link Mono} to handle the {@link ReactiveResponseEntity} object as a result of the request
+		 *         invocation
 		 * @throws HttpClientInvocationException Internal invocation failure (for example, an I/O error on communication
 		 *         channel or expected and actual payload type mismatch)
 		 */
@@ -662,7 +707,8 @@ public interface ReactiveRestClient extends RestClientOperations<ReactiveRestCli
 		 * Invoke the request using <code>TRACE</code> method and asynchronously receive a response back.
 		 * @param <T> Response type
 		 * @param responseType Expected response payload type
-		 * @return A {@link Mono} to handle the {@link ReactiveResponseEntity} object as a result of the request invocation
+		 * @return A {@link Mono} to handle the {@link ReactiveResponseEntity} object as a result of the request
+		 *         invocation
 		 * @throws HttpClientInvocationException Internal invocation failure (for example, an I/O error on communication
 		 *         channel or expected and actual payload type mismatch)
 		 */
@@ -675,7 +721,8 @@ public interface ReactiveRestClient extends RestClientOperations<ReactiveRestCli
 		 * Invoke the request using <code>TRACE</code> method and asynchronously receive a response back.
 		 * @param <T> Response type
 		 * @param responseType Response payload generic type representation
-		 * @return A {@link Mono} to handle the {@link ReactiveResponseEntity} object as a result of the request invocation
+		 * @return A {@link Mono} to handle the {@link ReactiveResponseEntity} object as a result of the request
+		 *         invocation
 		 * @throws HttpClientInvocationException Internal invocation failure (for example, an I/O error on communication
 		 *         channel or expected and actual payload type mismatch)
 		 */
@@ -722,7 +769,8 @@ public interface ReactiveRestClient extends RestClientOperations<ReactiveRestCli
 
 		/**
 		 * Invoke the request using <code>HEAD</code> method and asynchronously receive a response back.
-		 * @return A {@link Mono} to handle the {@link ReactiveResponseEntity} object as a result of the request invocation
+		 * @return A {@link Mono} to handle the {@link ReactiveResponseEntity} object as a result of the request
+		 *         invocation
 		 * @throws HttpClientInvocationException Internal invocation failure (for example, an I/O error on communication
 		 *         channel or expected and actual payload type mismatch)
 		 */

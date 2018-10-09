@@ -15,6 +15,8 @@
  */
 package com.holonplatform.reactor.spring.internal;
 
+import java.util.Optional;
+
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.reactive.function.client.ClientResponse;
@@ -120,6 +122,11 @@ public class WebClientReactiveRestClient extends AbstractReactiveRestClient impl
 		});
 
 		// body
+		getRequestPayload(requestEntity).ifPresent(payload -> {
+			spec.syncBody(payload);
+		});
+
+		// body
 
 		// get response, checking propertySet
 		final Mono<ClientResponse> response = requestDefinition.getPropertySet()
@@ -143,14 +150,14 @@ public class WebClientReactiveRestClient extends AbstractReactiveRestClient impl
 	 * @param requestEntity RequestEntity
 	 * @return Request entity payload, may be null
 	 */
-	protected Object getRequestPayload(RequestEntity<?> requestEntity) {
+	protected Optional<Object> getRequestPayload(RequestEntity<?> requestEntity) {
 		if (requestEntity != null) {
 			boolean form = requestEntity.getMediaType().map(m -> APPLICATION_FORM_URLENCODED_MEDIA_TYPE.equals(m))
 					.orElse(Boolean.FALSE);
-			return requestEntity.getPayload().map(p -> form ? new LinkedMultiValueMap<>(HttpUtils.getAsMultiMap(p)) : p)
-					.orElse(null);
+			return requestEntity.getPayload()
+					.map(p -> form ? new LinkedMultiValueMap<>(HttpUtils.getAsMultiMap(p)) : p);
 		}
-		return null;
+		return Optional.empty();
 	}
 
 }

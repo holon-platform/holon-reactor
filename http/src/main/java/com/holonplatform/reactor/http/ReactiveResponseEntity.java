@@ -15,6 +15,8 @@
  */
 package com.holonplatform.reactor.http;
 
+import java.io.InputStream;
+
 import com.holonplatform.http.rest.ResponseEntity;
 import com.holonplatform.http.rest.ResponseType;
 
@@ -32,7 +34,7 @@ public interface ReactiveResponseEntity<T> extends ResponseEntity<T> {
 
 	/**
 	 * Read the message entity as a {@link Mono}.
-	 * @return A {@link Mono} containing containing the message entity
+	 * @return A {@link Mono} containing the message entity
 	 */
 	Mono<T> asMono();
 
@@ -40,7 +42,7 @@ public interface ReactiveResponseEntity<T> extends ResponseEntity<T> {
 	 * Read the message entity as a {@link Mono} of the specified type.
 	 * @param <E> Entity instance type
 	 * @param entityType Entity type (not null)
-	 * @return A {@link Mono} containing containing the message entity
+	 * @return A {@link Mono} containing the message entity
 	 */
 	<E> Mono<E> asMono(Class<E> entityType);
 
@@ -49,7 +51,7 @@ public interface ReactiveResponseEntity<T> extends ResponseEntity<T> {
 	 * allow generic types support.
 	 * @param <E> Entity instance type
 	 * @param entityType Entity response type (not null)
-	 * @return A {@link Mono} containing containing the message entity
+	 * @return A {@link Mono} containing the message entity
 	 */
 	<E> Mono<E> asMono(ResponseType<E> entityType);
 
@@ -57,8 +59,14 @@ public interface ReactiveResponseEntity<T> extends ResponseEntity<T> {
 	 * Read the message entity as a {@link Flux} of the specified type.
 	 * @param <E> Entity instance type
 	 * @param entityType Entity type (not null)
-	 * @return A {@link Flux} containing containing the message entity
+	 * @return A {@link Flux} containing the message entity
 	 */
 	<E> Flux<E> asFlux(Class<E> entityType);
+
+	/**
+	 * Read the message entity as a raw {@link InputStream}.
+	 * @return A {@link Mono} to handle the message entity stream
+	 */
+	Mono<InputStream> asInputStream();
 
 }

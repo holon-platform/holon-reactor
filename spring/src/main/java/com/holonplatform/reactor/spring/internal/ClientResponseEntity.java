@@ -15,11 +15,14 @@
  */
 package com.holonplatform.reactor.spring.internal;
 
+import java.io.InputStream;
+import java.io.SequenceInputStream;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.web.reactive.function.BodyExtractors;
 import org.springframework.web.reactive.function.client.ClientResponse;
 
 import com.holonplatform.http.rest.ResponseEntity;
@@ -76,7 +79,7 @@ public class ClientResponseEntity<T> implements ReactiveResponseEntity<T> {
 	@SuppressWarnings("unchecked")
 	@Override
 	public Class<? extends T> getPayloadType() throws UnsupportedOperationException {
-		return (Class<? extends T>) type.getType();
+		return (Class<? extends T>) (Class<?>) type.getType();
 	}
 
 	/*
@@ -113,6 +116,22 @@ public class ClientResponseEntity<T> implements ReactiveResponseEntity<T> {
 	@Override
 	public <E> Flux<E> asFlux(Class<E> entityType) {
 		return response.bodyToFlux(entityType);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see com.holonplatform.reactor.http.ReactiveResponseEntity#asInputStream()
+	 */
+	@Override
+	public Mono<InputStream> asInputStream() {
+		final InputStream initial = new InputStream() {
+			@Override
+			public int read() {
+				return -1;
+			}
+		};
+		return response.body(BodyExtractors.toDataBuffers()).reduce(initial,
+				(s, d) -> new SequenceInputStream(s, d.asInputStream()));
 	}
 
 	/*
