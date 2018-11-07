@@ -62,7 +62,7 @@
 		<holon.core.version>5.2.0-alpha2-SNAPSHOT</holon.core.version>
 
 		<!-- Reactor -->
-		<reactor.version>Bismuth-SR11</reactor.version>
+		<reactor.version>Californium-SR2</reactor.version>
 
 		<!-- Test -->
 		<jackson.test.version>2.9.7</jackson.test.version>
