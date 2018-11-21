@@ -1,8 +1,8 @@
-= Holon Platform MongoDB Datastore Module - Reference manual
-:description: Holon platform MongoDB Datastore module reference documentation. \
-The Holon MongoDB Datastore is the MongoDB reference implementation of the Datastore API.
+= Holon Platform Project Reactor integration Module - Reference manual
+:description: Holon platform Project Reactor integration reference documentation. \
+The Reactor module provides integration between the Holon Platform core APIs, such as Datastore and RestClient, and the Project Reactor reactive programming model, using the Flux and Mono APIs.
 :revnumber: {project-version}
-:apidir: ../api/holon-datastore-mongo
+:apidir: ../api/holon-reactor
 :coreapidir: ../api/holon-core
 :linkattrs:
 :sectnums:
@@ -16,15 +16,656 @@ _Copies of this document may be made for your own use and for distribution to ot
 
 == Introduction
 
-== TODO
+The Reactor module provides integration between the Holon Platform core APIs, such as `Datastore` and `RestClient`, and the Project Reactor reactive programming model, using the `Flux` and `Mono` APIs.
 
-- Query always set as "snapshot"?
-- Describe NullFilter and NotNullFilter behaviours
+=== Sources and contributions
 
-- Document identifier resolution:
--- Property with path/name "_id": valid if type in (ObjectId,String,BigInteger,byte[])
--- _Identifier_ property: valid if only one and type in (ObjectId,String,BigInteger,byte[])
+The Holon Platform *Reactor* module source code is available from the GitHub repository link:https://github.com/holon-platform/holon-reactor[https://github.com/holon-platform/holon-reactor^].
 
-- Document identifier encoding/decoding:
--- When the document identifier property is named differently from "_id", the documents will provide a field with the path name (example "code") AND a "_id" field with the same value treated as ObjectId
+See the repository `README` file for information about:
+
+* The source code structure.
+* How to build the module artifacts from sources.
+* Where to find the code examples.
+* How to contribute to the module development.
+
+== Obtaining the artifacts
+
+The Holon Platform uses https://maven.apache.org[Maven^] for projects build and configuration. All the platform artifacts are published in the *Maven Central Repository*, so there is no need to explicitly declare additional repositories in your project `pom` file.
+
+At the top of each _section_ of this documentation you will find the Maven _coordinates_ (group id, artifact id and version) to obtain the artifact(s) as a dependency for your project.
+
+A *BOM (Bill Of Materials)* `pom` is provided to import the available dependencies for a specific version in your projects. The Maven coordinates for the core BOM are the following:
+
+_Maven coordinates_:
+[source, xml, subs="attributes+"]
+----
+<groupId>com.holon-platform.reactor</groupId>
+<artifactId>holon-reactor-bom</artifactId>
+<version>{revnumber}</version>
+----
+
+The BOM can be imported in a Maven project in the following way:
+
+[source, xml, subs="verbatim,quotes,attributes+"]
+----
+<dependencyManagement>
+	<dependencies>
+		<dependency>
+			<groupId>com.holon-platform.reactor</groupId>
+			<artifactId>holon-reactor-bom</artifactId>
+			<version>{revnumber}</version>
+			*<type>pom</type>*
+			*<scope>import</scope>*
+		</dependency>
+	</dependencies>
+</dependencyManagement>
+----
+
+=== Using the Platform BOM
+
+The Holon Platform provides an *overall Maven BOM (Bill of Materials)* to easily obtain all the available platform artifacts.
+
+See link:index.html#obtain-the-platform-artifacts[Obtain the platform artifacts] for details.
+
+[[ReactiveDatastore]]
+== Reactive Datastore
+
+_Maven coordinates_:
+[source, xml, subs="attributes+"]
+----
+<groupId>com.holon-platform.reactor</groupId>
+<artifactId>holon-reactor-datastore</artifactId>
+<version>{revnumber}</version>
+----
+
+The link:{apidir}/com/holonplatform/reactor/datastore/ReactiveDatastore.html[ReactiveDatastore^] API is the reactive version of the Holon Platform core link:holon-core.html#Datastore[Datastore^] API using the link:https://projectreactor.io[Project Reactor^] programming model.
+
+The `ReactiveDatastore` operations provides the same semantic and parameters as the core `Datastore` API operations, but use the Project Reactor `Mono` and `Flux` types as operation results, dependently on the result cardinality.
+
+Additionaly, the `ReactiveBulkInsert`, `ReactiveBulkUpdate` and `ReactiveBulkUpdate` bulk operations handlers are provided to obtain a __bulk__ operation result as a `Mono<OperationResult>` type.
+
+The link:{apidir}/com/holonplatform/reactor/datastore/operation/ReactiveQuery.html[ReactiveQuery^] API can be used to configure and execute queries, and obtain the query results as `Mono` and `Flux` types, according to the query projection cardinality.
+
+Finally, a link:{apidir}/com/holonplatform/reactor/datastore/transaction/ReactiveTransaction.html[ReactiveTransaction^] API is available for reactive Datastores which supports transactions, to reactively handle the transactions lifecycle.
+
+See the available `ReactiveDatastore` implementations for more information about reactive Datastores.
+
+The **MongoDB** `ReactiveDatastore` implementation documentation is link:holon-datastore-mongo.html#Reactor[available form here].
+
+[[ReactiveRestClient]]
+== Reactive RestClient
+
+_Maven coordinates_:
+[source, xml, subs="attributes+"]
+----
+<groupId>com.holon-platform.reactor</groupId>
+<artifactId>holon-reactor-http</artifactId>
+<version>{revnumber}</version>
+----
+
+The link:{apidir}/com/holonplatform/reactor/http/ReactiveRestClient.html[ReactiveRestClient^] API is the reactive version of the Holon Platform core link:holon-core.html#RestClient[RestClient^] API using the link:https://projectreactor.io[Project Reactor^] programming model.
+
+The `ReactiveRestClient` operations provides the same semantic and parameters as the core `RestClient` API operations, but use the Project Reactor `Mono` and `Flux` types as operation results, dependently on the result cardinality.
+
+The `ReactiveInvocation` API is used to configure and execute HTTP operations using the REST paradigm, providing the operation results through the `Mono` and `Flux` types.
+
+[[ReactiveRestClientFactory]]
+==== Obtain a `ReactiveRestClient` instance
+
+Concrete `ReactiveRestClient` implementations are obtained from a link:{apidir}/com/holonplatform/reactor/http/ReactiveRestClientFactory.html[ReactiveRestClientFactory^], registered using Java service extensions through a `com.holonplatform.reactor.http.ReactiveRestClientFactory` file under the `META-INF/services` folder.
+
+A `ReactiveRestClient` instance can be obtained using one of the `create(...)` methods provided by the interface, either specifying the _fully qualified_ class name of the `ReactiveRestClient` implementation to obtain or using the default implementation according to the available `ReactiveRestClientFactory` within the current `ClassLoader` (a specific `ClassLoader` can be used instead of the current one).
+
+NOTE: If more than one `RestClienReactiveRestClientFactorytFactory` is bound to the same `ReactiveRestClient` implementation type, or if more than one `ReactiveRestClientFactory` is available in the `ClassLoader` when the implementation class is not specified, the `ReactiveRestClientFactory` to use to build the `ReactiveRestClient` instance is selected according to the factory priority level, which can be specified using the `Priority` annotation, if available.
+
+TIP: The `forTarget(...)` static methods of the `ReactiveRestClient` interface can be used as shorters to create a `ReactiveRestClient` using the default implementation and setting a default base *URI* to use for the client requests.
+
+[source, java]
+.ReactiveRestClient creation examples
+----
+include::{examplesdir}/com/holonplatform/reactor/examples/ExampleReactiveRestClient.java[tag=creation,indent=0]
+----
+<1> Create a `ReactiveRestClient` API using the default available implementation for current ClassLoader
+<2> Create a `ReactiveRestClient` API using a specific implementation class name
+<3> Create a `ReactiveRestClient` API using the default available implementation and setting the _default_ base URI
+
+[[ReactiveRestClientImplementations]]
+===== Available implementations
+
+The `ReactiveRestClient` implementations provided by the Holon Platform are are:
+
+* A *JAX-RS* based implementation, using a standard JAX-RS `Client` to perform invocations, available from the holon-jaxrs.html#JaxrsReactiveRestClient[Holon platform JAX-RS module];
+* A <<SpringReactiveRestClient,Spring>> based implementation, using the Spring `WebClient` API to perform invocations;
+
+==== Configure defaults
+
+The `ReactiveRestClient` API supports some *default* configuration attributes, which will be used for each request performed using a `ReactiveRestClient` instance:
+
+* A *default target*, i.e. the default base URI which will be used for all the requests performed with the `ReactiveRestClient` API, unless overridden using the specific request configuration `target` method.
+* A set of *default headers* to be included in all the requests performed with the `ReactiveRestClient` API.
+
+[source, java]
+----
+include::{examplesdir}/com/holonplatform/reactor/examples/ExampleReactiveRestClient.java[tag=defaults,indent=0]
+----
+<1> Set the default target request base URI, which will be used as target URI for every request configured using `request()`, if not overridden using `target(URI)`. 
+<2> Add a default request header which will be automatically added to every invocation request message
+<3> Add another default request header
+
+[[ReactiveRestClientConfiguration]]
+==== Build and configure a request
+
+To build a client request, the link:{apidir}/com/holonplatform/reactor/http/ReactiveRestClient.ReactiveRequestDefinition.html[ReactiveRequestDefinition^] API is used, which represents both a _fluent_ builder to configure the request message and a link:{apidir}/com/holonplatform/reactor/http/ReactiveRestClient.ReactiveInvocation.html[ReactiveInvocation^] API to perform the actual invocation and obtain a response.
+
+The request can be configured using the `ReactiveInvocation` API methods as described below.
+
+===== Request URI
+
+The request URI can be composed using:
+
+* A request *target*, i.e. the base URI of the request. If a _default_ request target was configured for the `ReactiveRestClient` instance, it will be overriden by the specific request target.
+* One ore more request *path*s, which will be appended to the base request target URI, adding _slash_ characters to separate them from one another, if necessary.
+
+[source, java]
+----
+include::{examplesdir}/com/holonplatform/reactor/examples/ExampleReactiveRestClient.java[tag=configuration1,indent=0]
+----
+<1> Set the request _target_, i.e. the base request URI
+<2> Set the request _path_, which will be appended to the base request URI
+<3> Append one more _path_ to the request URI. The actual URI will be: `https://rest.api.example/apimethod/subpath`
+
+===== URI _template_ variable substitution values
+
+The `ReactiveRestClient` API supports URI _template_ variables substitution through the `resolve(...)` method. 
+
+IMPORTART: URI templates variables substitution is only supported for the request URI components specified as `path(...)` elements, not for the `target(...)` base URI part.
+
+[source, java]
+----
+include::{examplesdir}/com/holonplatform/reactor/examples/ExampleReactiveRestClient.java[tag=configuration2,indent=0]
+----
+<1> Subsitute two template variables values
+<2> Subsitute template variables values using a name-value map
+
+===== URI _query_ parameters
+
+The `ReactiveRestClient` API supports URI _query parameters_ specification, with single or multiple values, through the `queryParameter(...)` methods. 
+
+[source, java]
+----
+include::{examplesdir}/com/holonplatform/reactor/examples/ExampleReactiveRestClient.java[tag=configuration3,indent=0]
+----
+<1> Set a single value query parameter
+<2> Set a multiple values query parameter
+
+===== Request headers
+
+HTTP *headers* can be added to the request using the generic `header(String name, String... values)` method (supporting single or multiple header values) or a set of frequently used headers convenience setter methods, such as `accept`, `acceptLanguage` (supporting Java `Locale` types as arguments) and `cacheControl`.
+
+TIP: The link:{apidir}/com/holonplatform/http/HttpHeaders.html[HttpHeaders^] interface can be used to refer to HTTP *header names* as constants.
+
+TIP: The link:{apidir}/com/holonplatform/http/MediaType.html[MediaType^] enumeration can be used for the `Accept` header values using the `accept(MediaType... mediaTypes)` builder method.
+
+TIP: The link:{apidir}/com/holonplatform/http/CacheControl.html[CacheControl^] API provides a fluent builder to build and set a `Cache-Control` header value for the request, using the `cacheControl(CacheControl cacheControl)` builder method.
+
+[source, java]
+----
+include::{examplesdir}/com/holonplatform/reactor/examples/ExampleReactiveRestClient.java[tag=configuration4,indent=0]
+----
+<1> Set a request header, providing its name and its value
+<2> Set a request header, providing its name through the `HttpHeaders` enumeration and its value
+<3> Set the request `Accept` header values
+<4> Set the request `Accept` header value using the `MediaType` enumeration
+<5> Set the request `Accept-Encoding` header value
+<6> Set the request `Accept-Charset` header value
+<7> Set the request `Accept-Charset` header value using the Java `Charset` class
+<8> Set the request `Accept-Language` header value
+<9> Set the request `Accept-Language` header values using the Java `Locale` class
+<10> Build a `CacheControl` definition and set it as `Cache-Control` request header value
+
+===== Authorization headers
+
+The `ReactiveRestClient` API provides two convenience request builder methods to setup a request `Authorization` header using:
+
+* The `Basic` authorization scheme, providing a _username_ and a _password_, through the `authorizationBasic(String username, String password)` builder method.
+* The `Bearer` authorization scheme, providing a _token_, through the `authorizationBearer(String bearerToken)` builder method.
+
+[source, java]
+----
+include::{examplesdir}/com/holonplatform/reactor/examples/ExampleReactiveRestClient.java[tag=configuration5,indent=0]
+----
+<1> Set the `Authorization` request header value using the `Basic` scheme and providing the credentials. Username and password will be encoded according to the link:https://tools.ietf.org/html/rfc1945#section-11.1[HTTP specifications^]
+<2> Set the `Authorization` request header value using the `Bearer` scheme and providing the bearer _token_ value. See link:https://tools.ietf.org/html/rfc6750#section-2.1[RFC6750^]
+
+[[ReactiveRestClientInvocation]]
+==== Invoke the request and obtain a response
+
+The `ReactiveRequestDefinition` API can be used to perform the actual invocation and obtain a response.
+
+The `ReactiveRequestDefinition` API provides a generic invocation method:
+
+[source, java]
+----
+<T, R> Mono<ReactiveResponseEntity<T>> invoke(HttpMethod method, RequestEntity<R> requestEntity, ResponseType<T> responseType)
+----
+
+This method requires the following parameters:
+
+* The HTTP *method* to use to perform the request (`GET`, `POST`, and so on), specified using the `HttpMethod` enumeration.
+* An optional *request entity*, i.e. the request message _payload_ (body), represented through the `RequestEntity` API.
+* The expected *response entity type* using the `ResponseType` class, to declare the Java type of the response _payload_ and apply a suitable converter, if available, to obtain the HTTP response body as the expected Java type.
+
+The method returns a `Mono` of `ReactiveResponseEntity` type, which can be used to reactively handle the operation response.
+
+The `ReactiveResponseEntity` API is a `ResponseEntity` extension which can be used to:
+
+* Inspect the response message, for example to obtain the HTTP response *status* code, as a number or represented through the link:{apidir}/com/holonplatform/http/HttpStatus.html[HttpStatus^] enumeration.
+* Obtain the HTTP response raw _payload_ or get it as a Java object, unmarshalled by a suitable converter which must be available from the concrete `ReactiveRestClient` API implementation.
+* Obtain the response entity as a `Mono` or a `Flux` of the required type.
+
+WARNING: For non textual request or response payload types, any marshalling/unmarshalling strategy and implementation must be provided by the concrete `ReactiveRestClient` API. See the specific <<ReactiveRestClientImplementations>> documentation for additional information.
+
+See the next sections for details about the invocation parameters and return types.
+
+[[RequestEntity]]
+==== Request entity
+
+The link:{coreapidir}/com/holonplatform/http/rest/RequestEntity.html[RequestEntity^] interface can be used to provide a _request entity_ to the `ReactiveRestClient` API invocation methods, i.e. the request message _payload_.
+
+The request _entity_ is represented by a Java object and its serialization format is specified using a _media type_ declaration (i.e. a *MIME* type definition) through the `Content-Type` request header value.
+
+NOTE: Depending on the `ReactiveRestClient` API implementation used, you must ensure the request media type is supported and a suitable request message body converter is available to deal with the Java object type and the media type of the request entity.
+
+The `RequestEntity` interface provides a set of convenience static methods to build a request entity instance using the most common media types, such a `text/plain`, `application/json`, `application/xml` and `application/x-www-form-urlencoded` (the latter also providing a fluent _form_ data builder method).
+
+[source, java]
+----
+include::{examplesdir}/com/holonplatform/reactor/examples/ExampleReactiveRestClient.java[tag=request,indent=0]
+----
+<1> Build a `text/plain` type request entity, using `test` as request entity value
+<2> Build a `application/json` type request entity, using a `TestData` class instance as request entity value
+<3> Build a `application/x-www-form-urlencoded` type request entity, using the `formBuilder` method to build the _form_ data map
+
+The `RequestEntity.EMPTY` constant value can be used to provide an *empty* request entity.
+
+[source, java]
+----
+include::{examplesdir}/com/holonplatform/reactor/examples/ExampleReactiveRestClient.java[tag=request2,indent=0]
+----
+<1> Build an empty request empty, to provide a request message without a payload
+
+[[ResponseType]]
+==== Response type
+
+The link:{apidir}/com/holonplatform/http/rest/ResponseType.html[ResponseType^] interface can be used to provide the expected response _entity_ type to the `ReactiveRestClient` API invocation methods.
+
+In addition to a simple Java class type, a _parametrized_ type can be declared, allowing to use Java _generic_ types as response types.
+
+[source, java]
+----
+include::{examplesdir}/com/holonplatform/reactor/examples/ExampleReactiveRestClient.java[tag=restype,indent=0]
+----
+<1> Declares a response type as `TestData` type
+<2> Declares a response type as a `List` of `TestData` types
+
+[[ReactiveResponseEntity]]
+==== Response entity
+
+The link:{apidir}/com/holonplatform/reactor/http/ReactiveResponseEntity.html[ReactiveResponseEntity^] interface is used by `ReactiveRestClient` API to represent the invocation _response_ and to deal with the response _entity_ obtained as invocation result.
+
+Since it is a `HttpResponse` instance, the `ReactiveRestClient` API can be used to inspect the response message, for example the HTTP message headers, including the HTTP status code.
+
+[source, java]
+----
+include::{examplesdir}/com/holonplatform/reactor/examples/ExampleReactiveRestClient.java[tag=response1,indent=0]
+----
+<1> Perform a `GET` request, setting the `Accept` header as `application/json` and declaring the `TestData` class as expected response entity Java type
+<2> Get the response status as `HttpStatus` enumeration value
+<3> Get the response status code
+<4> Get the `Content-Length` header value
+<5> Get a generic header value
+
+To obtain the response _entity_ value as the expected Java type, the `asMono()` method can be used. The returned object generic type is provided according to the specified <<ResponseType>>, so the payload value will be and instance of the expected response Java type.
+
+Furthermore, the `ReactiveResponseEntity` API makes available the `asMono(Class<E> entityType)` method, to obtain the response entity as a different type from the one specified with the <<ResponseType>> invocation parameter, if the media type is supported by the concrete `ReactiveRestClient` API implementation and a suitable converter is available.
+
+In a similar way, the `asFlux(Class<E> entityType)` and `asInputStream()` methods provide the response entity content as a `Flux` and as a `InputStream` respectively.
+
+[source, java]
+----
+include::{examplesdir}/com/holonplatform/reactor/examples/ExampleReactiveRestClient.java[tag=response2,indent=0]
+----
+<1> Perform a `GET` request, setting the `Accept` header as `application/json` and declaring the `TestData` class as expected response entity Java type
+<2> Get the response entity `Mono` value as a `TestData` type, according to the declared response type
+<3> Get the response entity `Mono` value as a `String`
+
+NOTE: Depending on the concrete `ReactiveRestClient` API implementation, you must ensure the response media type is supported and a suitable message body converter is available to deal with the Java object type and the media type of the response entity.
+
+==== Specific request invocation methods
+
+In most cases, it is easier and faster to use HTTP _method_-specific invocation methods, made available by the `ReactiveRestClient` invocation API. 
+
+Each invocation method is relative to a specific HTTP request _method_ and it is named accordingly. More than one method version is provided for each HTTP request method, providing the most suitable parameters and response types for for the most common situations.
+
+For each HTTP request _method_ (apart from the `HEAD` request method), the `ReactiveRestClient` API makes available a set of invocation methods organized as follows:
+
+*1.* A set of methods to optionally provide a <<RequestEntity>> and to obtain a <<ReactiveResponseEntity>>. If the response is expected to contain a payload which has to be deserialized into a Java object, the <<ResponseType>> can be specified, either as a simple or parametrized Java class.
+
+[source, java]
+----
+include::{examplesdir}/com/holonplatform/reactor/examples/ExampleReactiveRestClient.java[tag=methods1,indent=0]
+----
+<1> Perform an invocation using the `GET` method and obtain a `ResponseEntity` expecting the `TestData` class as response entity type
+<2> The same invocation using the `ResponseType` API to specify the expected response entity type
+<3> Perform an invocation using the `PUT` method and providing an `application/json` type request entity, expecting a `TestData` response entity type
+
+When a response entity is not expected, this category of invocation methods return a `Void` type `ReactiveResponseEntity`.
+
+[source, java]
+----
+include::{examplesdir}/com/holonplatform/reactor/examples/ExampleReactiveRestClient.java[tag=methods2,indent=0]
+----
+<1> Perform an invocation using the `POST` method and providing an `application/json` type request entity, but no response entity is expected
+<2> Get the response HTTP status
+
+*2.* A set of method to directly obtain the deserialized response _entity_ value, named with the `ForEntity` suffix. This methods expects a _successful_ response (i.e. a response with a `2xx` HTTP status code), otherwise  an `UnsuccessfulResponseException` is thrown. The exception which can be inspected to obtain the response status code and the response itself.
+
+[source, java]
+----
+include::{examplesdir}/com/holonplatform/reactor/examples/ExampleReactiveRestClient.java[tag=methods3,indent=0]
+----
+<1> Perform an invocation using the `GET` method and directly obtain the `TestData` type response entity value, if available
+<2> Perform an invocation using the `GET` method and directly obtain a `List` of `TestData` type response entity values, if available
+
+The link:{apidir}/com/holonplatform/http/exceptions/UnsuccessfulResponseException.html[UnsuccessfulResponseException^] type, which is thrown by the `xxxForEntity` invocation methods when the response status code do not belongs to the `2xx` family, provides some information about the invocation failure:
+
+* The actual response *status* code.
+* A reference to the actual response entity instance.
+
+[source, java]
+----
+include::{examplesdir}/com/holonplatform/reactor/examples/ExampleReactiveRestClient.java[tag=methods4,indent=0]
+----
+<1> Get the actual response status code
+<2> Get the response status code as a `HttpStatus`
+<3> Get the `ResponseEntity` instance
+
+*3.* A set of convenience methods are provided for frequent needs and situations, for example:
+
+* A `getForStream` method to perform a request using the HTTP `GET` method and obtain the response _entity_ as an `InputStream`. This can be useful, for example, for API invocations which result is a stream of byte or characters.
+
+[source, java]
+----
+include::{examplesdir}/com/holonplatform/reactor/examples/ExampleReactiveRestClient.java[tag=methods5,indent=0]
+----
+
+* A `getAsList` method, to perform a request using the HTTP `GET` method and obtain the response entity contents as a `Flux` of deserialized Java objects in a specified expected response type. 
+
+[source, java]
+----
+include::{examplesdir}/com/holonplatform/reactor/examples/ExampleReactiveRestClient.java[tag=methods6,indent=0]
+----
+
+* A `postForLocation` to perform a request using the HTTP `POST` and directly obtain the `Location` response header value as a Java `URI` instance, if available.
+
+[source, java]
+----
+include::{examplesdir}/com/holonplatform/reactor/examples/ExampleReactiveRestClient.java[tag=methods7,indent=0]
+----
+
+==== `RestClient` API invocation methods reference
+
+Below a reference list of the `ReactiveRestClient` invocation API, available from the reactive request definition API:
+
+[source, java]
+----
+include::{examplesdir}/com/holonplatform/reactor/examples/ExampleReactiveRestClient.java[tag=methodsx,indent=0]
+----
+
+*Generic invocations:*
+
+|===
+|Operation |Description |Parameters |Returns |Response status handling
+
+|`invoke`
+|Invoke the request and receive a response back.
+a|
+. HTTP method
+. Optional `RequestEntity`
+. Expected response entity type (`Void` for none)
+|A `Mono` of `ReactiveResponseEntity` type with the expected response entity payload type
+|_None_
+
+|`invokeForSuccess`
+|Invoke the request and receive a response back only if the response has a _success_ (`2xx`) status code.
+a|
+. HTTP method
+. Optional `RequestEntity`
+. Expected response entity type (`Void` for none)
+|A `Mono` of `ReactiveResponseEntity` type with the provided response entity payload type
+|If the response status code is not `2xx`, an `UnsuccessfulResponseException` is thrown
+
+|`invokeForEntity`
+|Invoke the request and receive back the response content entity, already deserialized in the expected response type.
+a|
+. HTTP method
+. Optional `RequestEntity`
+. Expected response entity type
+|A `Mono` with the response _entity_ value, already deserialized in the expected response entity type
+|If the response status code is not `2xx`, an `UnsuccessfulResponseException` is thrown
+|`invokeForFlux`
+|Invoke the request and receive back a response content entity, already deserialized in a `Flux` of the expected response type.
+a|
+. HTTP method
+. Optional `RequestEntity`
+. Expected response entity type
+|A `Flux` with the response _entity_ values, already deserialized in the expected response entity type
+|If the response status code is not `2xx`, an `UnsuccessfulResponseException` is thrown
+|===
+
+*By method invocations:*
+
+*1. `GET`:*
+
+|===
+|Operation |Parameters |Returns |Response status handling
+
+|`*get*`
+|Expected response entity type, either using a `Class<T>` or a `ResponseType<T>` to handle generic types
+|A `Mono` of `ReactiveResponseEntity<T>` type, with expected response entity payload type
+|_None_
+
+|`*getForEntity*`
+|Expected response entity type, either using a `Class<T>` or a `ResponseType<T>` to handle generic types
+|A `Mono` of the response _entity_ value (`T`), already deserialized in the expected response entity type
+|If the response status code is not `2xx`, an `UnsuccessfulResponseException` is thrown
+
+|`*getForStream*`
+|_None_
+|A `Mono` of the response payload `InputStream`
+|If the response status code is not `2xx`, an `UnsuccessfulResponseException` is thrown
+
+|`*getAsList*`
+|Expected response entity type (`Class<T>`) 
+|A `Flux` of the deserialized response entities using the provided response entity type
+|If the response status code is not `2xx`, an `UnsuccessfulResponseException` is thrown
+|===
+
+*2. `POST`:*
+
+|===
+|Operation |First parameter |Second parameter |Returns |Response status handling
+
+|`*post*`
+|The request _entity_ represented as `RequestEntity` instance
+|_Optional_ expected response entity type, either using a `Class<T>` or a `ResponseType<T>` to handle generic types
+|A `Mono` of `ReactiveResponseEntity<T>` type, with expected response entity payload type. If the second parameter is not specified, a `Void` type `ReactiveResponseEntity` is returned
+|_None_
+
+|`*postForEntity*`
+|The request _entity_ represented as `RequestEntity` instance
+|Expected response entity type, either using a `Class<T>` or a `ResponseType<T>` to handle generic types
+|A `Mono` of the response _entity_ value (`T`), already deserialized in the expected response entity type
+|If the response status code is not `2xx`, an `UnsuccessfulResponseException` is thrown
+
+|`*postForLocation*`
+|The request _entity_ represented as `RequestEntity` instance
+|_None_
+|A `Mono` of the `Location` response header value
+|If the response status code is not `2xx`, an `UnsuccessfulResponseException` is thrown
+|===
+
+*3. `PUT`:*
+
+|===
+|Operation |First parameter |Second parameter |Returns |Response status handling
+
+|`*put*`
+|The request _entity_ represented as `RequestEntity` instance
+|_Optional_ expected response entity type, either using a `Class<T>` or a `ResponseType<T>` to handle generic types
+|A `Mono` of `ReactiveResponseEntity<T>` type, with expected response entity payload type. If the second parameter is not specified, a `Void` type `ReactiveResponseEntity` is returned
+|_None_
+
+|`*putForEntity*`
+|The request _entity_ represented as `RequestEntity` instance
+|Expected response entity type, either using a `Class<T>` or a `ResponseType<T>` to handle generic types
+|A `Mono` of the response _entity_ value (`T`), already deserialized in the expected response entity type
+|If the response status code is not `2xx`, an `UnsuccessfulResponseException` is thrown
+|===
+
+*4. `PATCH`:*
+
+|===
+|Operation |First parameter |Second parameter |Returns |Response status handling
+
+|`*patch*`
+|The request _entity_ represented as `RequestEntity` instance
+|_Optional_ expected response entity type, either using a `Class<T>` or a `ResponseType<T>` to handle generic types
+|A `Mono` of `ReactiveResponseEntity<T>` type, with expected response entity payload type. If the second parameter is not specified, a `Void` type `ReactiveResponseEntity` is returned
+|_None_
+
+|`*patchForEntity*`
+|The request _entity_ represented as `RequestEntity` instance
+|Expected response entity type, either using a `Class<T>` or a `ResponseType<T>` to handle generic types
+|A `Mono` of the response _entity_ value (`T`), already deserialized in the expected response entity type
+|If the response status code is not `2xx`, an `UnsuccessfulResponseException` is thrown
+|===
+
+*5. `DELETE`:*
+
+|===
+|Operation |Parameter |Returns |Response status handling
+
+|`*delete*`
+|_Optional_ expected response entity type, either using a `Class<T>` or a `ResponseType<T>` to handle generic types
+|A `Mono` of `ReactiveResponseEntity<Void>` type
+|_None_
+
+|`*deleteOrFail*`
+|_None_
+|A `Mono` of `Void` type
+|If the response status code is not `2xx`, an `UnsuccessfulResponseException` is thrown
+
+|`*deleteForEntity*`
+|Expected response entity type, either using a `Class<T>` or a `ResponseType<T>` to handle generic types
+|A `Mono` of the response _entity_ value (`T`), already deserialized in the expected response entity type
+|If the response status code is not `2xx`, an `UnsuccessfulResponseException` is thrown
+|===
+
+*6. `OPTIONS`:*
+
+|===
+|Operation |Parameter |Returns |Response status handling
+
+|`*options*`
+|_Optional_ expected response entity type, either using a `Class<T>` or a `ResponseType<T>` to handle generic types
+|A `Mono` of `ReactiveResponseEntity<T>` type, with expected response entity payload type. If the second parameter is not specified, a `Void` type `ReactiveResponseEntity` is returned
+|_None_
+
+|`*optionsForEntity*`
+|Expected response entity type, either using a `Class<T>` or a `ResponseType<T>` to handle generic types
+|A `Mono` of the response _entity_ value (`T`), already deserialized in the expected response entity type
+|If the response status code is not `2xx`, an `UnsuccessfulResponseException` is thrown
+|===
+
+*7. `TRACE`:*
+
+|===
+|Operation |Parameter |Returns |Response status handling
+
+|`*trace*`
+|_Optional_ expected response entity type, either using a `Class<T>` or a `ResponseType<T>` to handle generic types
+|A `Mono` of `ReactiveResponseEntity<T>` type, with expected response entity payload type. If the second parameter is not specified, a `Void` type `ReactiveResponseEntity` is returned
+|_None_
+
+|`*traceForEntity*`
+|Expected response entity type, either using a `Class<T>` or a `ResponseType<T>` to handle generic types
+|A `Mono` of the response _entity_ value (`T`), already deserialized in the expected response entity type
+|If the response status code is not `2xx`, an `UnsuccessfulResponseException` is thrown
+|===
+
+*8. `HEAD`:*
+
+|===
+|Operation |Returns |Response status handling
+
+|`*head*`
+|A `Void` type `ResponseEntity`
+|A `Mono` of `ReactiveResponseEntity<Void>` type
+|===
+
+[[ReactiveRestClientPropertyModel]]
+==== `Property` and `PropertyBox` support
+
+The `ReactiveRestClient` API fully supports the Holon Platform <<Property,Property>> model when used along with the  <<PropertyBox,PropertyBox>> data type as a request/response _entity_ in RESTful API calls.
+
+Regarding the *JSON* media type, the `PropertyBox` type marshalling and unmarshalling support is provided by the link:holon-json.html[Holon Platform JSON module]. For the <<ReactiveRestClientImplementations,builtin `ReactiveRestClient` API implementations>>, the `PropertyBox` type JSON support is automatically setted up when the suitable Holon platform JSON module artifacts are available in classpath. 
+
+When a response entity value has to be deserialized into a `PropertyBox` object type, the *property set* to be used must be specified along with the reponse entity type, in order to instruct the JSON module unmarshallers about the property set with which to build the response `PropertyBox` instances.
+
+For this purpose, the `ReactiveRestClient` invocation API `propertySet(...)` methods can be used to specify the *property set* with which to obtain a `PropertyBox` type response entity value.
+
+[source, java]
+----
+include::{examplesdir}/com/holonplatform/reactor/examples/ExampleReactiveRestClient.java[tag=properties,indent=0]
+----
+<1> `GET` request for a `PropertyBox` type `Mono` response, using `PROPERTIES` as property set
+<2> `GET` request for a `PropertyBox` type `Mono` response, using directly an array of properties
+<3> `GET` request for a `Flux` of `PropertyBox` type response, using `PROPERTIES` as property set
+
+[[SpringReactiveRestClient]]
+== `ReactiveRestClient` implementation using the Spring `WebClient` API
+
+_Maven coordinates_:
+[source, xml, subs="attributes+"]
+----
+<groupId>com.holon-platform.reactor</groupId>
+<artifactId>holon-reactor-spring</artifactId>
+<version>{revnumber}</version>
+----
+
+The `holon-reactor-spring` artifact provides a <<ReactiveRestClient>> implementation using the Spring 5+  `WebClient` API.
+
+The Spring `ReactiveRestClient` implementation is represented by the link:{apidir}/com/holonplatform/reactor/spring/SpringReactiveRestClient.html[SpringReactiveRestClient^] interface, which provides a `create(WebClient webClient)` method to create a `ReactiveRestClient` instance using a provided Spring `WebClient` reference.
+
+[source, java]
+----
+include::{examplesdir}/com/holonplatform/reactor/examples/ExampleReactiveRestClient.java[tag=spring1,indent=0]
+----
+<1> Create or obtain a `WebClient` implementation
+<2> Create a `ReactiveRestClient` using the `WebClient` implementation
+
+When a `WebClient` instance is available as a Holon Platform <<Context>> resource, a `ReactiveRestClientFactory` is automatically registered to provide a `SpringReactiveRestClient` implementation using that `WebClient` implementation. This way, the default `ReactiveRestClient.create(...)` static methods can be used to obtain a `ReactiveRestClient` implementation.
+
+TIP: If the link:holon-core.html#SpringContextScope[Spring context scope^] is enabled with the default beans lookup strategy, it is sufficient that a `WebClient` bean type is registered in the Spring application context to obtain it as a _context resource_.
+
+[source, java]
+----
+include::{examplesdir}/com/holonplatform/reactor/examples/ExampleReactiveRestClient.java[tag=spring2,indent=0]
+----
+<1> Use the `@EnableBeanContext` to enable Spring beans context
+<2> Provide a `WebClient` bean definition
+<3> The `ReactiveRestClient.create()` method can be used to obtain a `ReactiveRestClient` implementation backed by the defined `WebClient` bean definition
+<4> If more than one `ReactiveRestClientFactory` is available, the `SpringReactiveRestClient` class name can be specified to ensure that a `SpringReactiveRestClient` type is obtained as a `ReactiveRestClient` implementation
 

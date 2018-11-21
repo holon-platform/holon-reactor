@@ -70,7 +70,7 @@
 		<dependency>
 			<groupId>com.holon-platform.core</groupId>
 			<artifactId>holon-test</artifactId>
-			<version>${project.version}</version>
+			<version>${holon.core.version}</version>
 			<scope>test</scope>
 		</dependency>
 

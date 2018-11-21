@@ -31,7 +31,7 @@ _Maven BOM:_
     <dependency>
         <groupId>com.holon-platform.reactor</groupId>
         <artifactId>holon-reactor-bom</artifactId>
-        <version>5.2.0-alpha2-SNAPSHOT</version>
+        <version>5.2.0-alpha2</version>
         <type>pom</type>
         <scope>import</scope>
     </dependency>
