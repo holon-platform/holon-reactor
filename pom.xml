@@ -58,7 +58,7 @@
 		<bintray.package>holon-reactor</bintray.package>
 
 		<!-- Holon Core -->
-		<holon.core.version>5.2.0-rc1</holon.core.version>
+		<holon.core.version>5.2.0-rc2</holon.core.version>
 
 		<!-- Reactor -->
 		<reactor.version>Californium-SR3</reactor.version>
