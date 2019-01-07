@@ -16,6 +16,7 @@
 package com.holonplatform.reactor.datastore;
 
 import java.io.Serializable;
+import java.util.Optional;
 
 import com.holonplatform.core.ExpressionResolver;
 import com.holonplatform.core.ExpressionResolver.ExpressionResolverSupport;
@@ -39,6 +40,7 @@ import com.holonplatform.reactor.datastore.operation.ReactiveQuery;
 import com.holonplatform.reactor.datastore.operation.ReactiveRefresh;
 import com.holonplatform.reactor.datastore.operation.ReactiveSave;
 import com.holonplatform.reactor.datastore.operation.ReactiveUpdate;
+import com.holonplatform.reactor.datastore.transaction.ReactiveTransactional;
 
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -179,6 +181,27 @@ public interface ReactiveDatastore extends
 	default ReactiveQuery query(DataTarget<?> target) {
 		ObjectUtils.argumentNotNull(target, "Query target must be not null");
 		return query().target(target);
+	}
+
+	// Transactions
+
+	/**
+	 * Check if this Datastore is {@link ReactiveTransactional}, i.e. supports execution of transactional operations.
+	 * @return If this Datastore is transactional, return the Datastore as {@link ReactiveTransactional}, or an empty
+	 *         Optional otherwise
+	 */
+	default Optional<ReactiveTransactional> isTransactional() {
+		return Optional.ofNullable((this instanceof ReactiveTransactional) ? (ReactiveTransactional) this : null);
+	}
+
+	/**
+	 * Requires this Datastore to be {@link ReactiveTransactional}, i.e. to support execution of transactional
+	 * operations, throwing an {@link IllegalStateException} if this Datastore is not transactional.
+	 * @return the Datastore as {@link ReactiveTransactional}
+	 * @throws IllegalStateException If this Datastore is not transactional
+	 */
+	default ReactiveTransactional requireTransactional() {
+		return isTransactional().orElseThrow(() -> new IllegalStateException("The Datastore is not transactional"));
 	}
 
 }
