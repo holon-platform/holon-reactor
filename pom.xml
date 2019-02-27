@@ -61,7 +61,7 @@
 		<holon.core.version>5.2.0</holon.core.version>
 
 		<!-- Reactor -->
-		<reactor.version>Californium-SR3</reactor.version>
+		<reactor.version>Californium-SR5</reactor.version>
 
 		<!-- Test -->
 		<jackson.test.version>2.9.8</jackson.test.version>
