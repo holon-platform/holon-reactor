@@ -1,6 +1,6 @@
 # Holon platform Project Reactor integration
 
-> Latest release: [5.2.0](#obtain-the-artifacts)
+> Latest release: [5.2.1](#obtain-the-artifacts)
 
 This is the __Reactor__ module of the [Holon Platform](https://holon-platform.com), which provides integration with the [Project Reactor](https://projectreactor.io) APIs, a reactive library for building non-blocking applications on the JVM based on the Reactive Streams Specification. 
 
@@ -30,7 +30,7 @@ _Maven BOM:_
     <dependency>
         <groupId>com.holon-platform.reactor</groupId>
         <artifactId>holon-reactor-bom</artifactId>
-        <version>5.2.0</version>
+        <version>5.2.1</version>
         <type>pom</type>
         <scope>import</scope>
     </dependency>
