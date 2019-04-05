@@ -57,10 +57,10 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
 		<!-- Holon Core -->
-		<holon.core.version>5.2.1</holon.core.version>
+		<holon.core.version>5.2.2</holon.core.version>
 
 		<!-- Reactor -->
-		<reactor.version>Californium-SR5</reactor.version>
+		<reactor.version>Californium-SR6</reactor.version>
 
 		<!-- Test -->
 		<jackson.test.version>2.9.8</jackson.test.version>
