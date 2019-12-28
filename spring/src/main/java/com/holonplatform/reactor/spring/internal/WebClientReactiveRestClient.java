@@ -123,7 +123,7 @@ public class WebClientReactiveRestClient extends AbstractReactiveRestClient impl
 
 		// body
 		getRequestPayload(requestEntity).ifPresent(payload -> {
-			spec.syncBody(payload);
+			spec.bodyValue(payload);
 		});
 
 		// body
