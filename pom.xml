@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>com.holon-platform</groupId>
 		<artifactId>parent</artifactId>
-		<version>1.1.4</version>
+		<version>1.1.5</version>
 	</parent>
 
 	<groupId>com.holon-platform.reactor</groupId>
@@ -55,15 +55,15 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
 		<!-- Holon Core -->
-		<holon.core.version>5.3.0</holon.core.version>
+		<holon.core.version>5.4.0</holon.core.version>
 
 		<!-- Reactor -->
-		<reactor.version>Californium-SR10</reactor.version>
+		<reactor.version>Californium-SR14</reactor.version>
 
 		<!-- Test -->
-		<jackson.databind.version>2.9.9.3</jackson.databind.version>
-		<jackson.jaxrs.version>2.9.9</jackson.jaxrs.version>
-		<jersey.test.version>2.29</jersey.test.version>
+		<jackson.databind.version>2.10.1</jackson.databind.version>
+		<jackson.jaxrs.version>2.10.1</jackson.jaxrs.version>
+		<jersey.test.version>2.29.1</jersey.test.version>
 
 	</properties>
 
