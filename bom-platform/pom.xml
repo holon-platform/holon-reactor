@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>com.holon-platform.reactor</groupId>
 		<artifactId>holon-reactor-root</artifactId>
-		<version>5.7.0</version>
+		<version>5.7.1-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>holon-reactor-bom-platform</artifactId>
