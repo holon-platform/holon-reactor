@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>com.holon-platform</groupId>
 		<artifactId>parent</artifactId>
-		<version>1.1.6</version>
+		<version>1.2.0</version>
 	</parent>
 
 	<groupId>com.holon-platform.reactor</groupId>
@@ -55,10 +55,10 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
 		<!-- Holon Core -->
-		<holon.core.version>5.5.0</holon.core.version>
+		<holon.core.version>5.7.0</holon.core.version>
 
 		<!-- Reactor -->
-		<reactor.version>Californium-SR19</reactor.version>
+		<reactor.version>2022.0.12</reactor.version>
 
 		<!-- Test -->
 		<jackson.databind.version>2.11.1</jackson.databind.version>
