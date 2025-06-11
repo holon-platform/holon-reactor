@@ -54,6 +54,21 @@
 					</execution>
 				</executions>
 			</plugin>
+			<!-- JDK9 Automatic-Module-Name -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<configuration>
+					<archive>
+						<manifestEntries>
+							<Automatic-Module-Name>
+								com.holonplatform.documentation.reactor
+							</Automatic-Module-Name>
+						</manifestEntries>
+					</archive>
+				</configuration>
+			</plugin>
+
 		</plugins>
 	</build>
 

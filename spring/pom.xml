@@ -142,9 +142,9 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>com.fasterxml.jackson.jaxrs</groupId>
-			<artifactId>jackson-jaxrs-json-provider</artifactId>
-			<version>${jackson.jaxrs.version}</version>
+			<groupId>com.fasterxml.jackson.jakarta.rs</groupId>
+			<artifactId>jackson-jakarta-rs-json-provider</artifactId>
+			<version>${jackson.jakarta.version}</version>
 			<scope>test</scope>
 			<exclusions>
 				<exclusion>

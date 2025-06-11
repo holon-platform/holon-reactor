@@ -17,6 +17,7 @@ package com.holonplatform.reactor.spring.internal;
 
 import java.util.Optional;
 
+import org.springframework.http.HttpStatusCode;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.reactive.function.client.ClientResponse;
@@ -81,9 +82,9 @@ public class WebClientReactiveRestClient extends AbstractReactiveRestClient impl
 	/*
 	 * (non-Javadoc)
 	 * @see
-	 * com.holonplatform.reactor.http.internal.ReactiveInvoker#invoke(com.holonplatform.reactor.http.ReactiveRestClient.
-	 * ReactiveRequestDefinition, com.holonplatform.http.HttpMethod, com.holonplatform.http.rest.RequestEntity,
-	 * com.holonplatform.http.rest.ResponseType, boolean)
+	 * com.holonplatform.reactor.http.internal.ReactiveInvoker#invoke(com.holonplatform.reactor.http.
+	 * ReactiveRestClient. ReactiveRequestDefinition, com.holonplatform.http.HttpMethod,
+	 * com.holonplatform.http.rest.RequestEntity, com.holonplatform.http.rest.ResponseType, boolean)
 	 */
 	@Override
 	public <T, R> Mono<ReactiveResponseEntity<T>> invoke(ReactiveRequestDefinition requestDefinition, HttpMethod method,
@@ -104,7 +105,7 @@ public class WebClientReactiveRestClient extends AbstractReactiveRestClient impl
 
 		// method
 		org.springframework.http.HttpMethod requestMethod = org.springframework.http.HttpMethod
-				.resolve(method.getMethodName());
+				.valueOf(method.getMethodName());
 		if (requestMethod == null) {
 			throw new RestClientException("Unsupported HTTP method: " + method.getMethodName());
 		}
@@ -133,7 +134,7 @@ public class WebClientReactiveRestClient extends AbstractReactiveRestClient impl
 				.map(ps -> ps.execute(() -> spec.exchange())).orElseGet(() -> spec.exchange());
 
 		return response.flatMap(r -> {
-			final org.springframework.http.HttpStatus status = r.statusCode();
+			final HttpStatusCode status = r.statusCode();
 			if (onlySuccessfulStatusCode && !HttpStatus.isSuccessStatusCode(status.value())) {
 				return Mono.<ReactiveResponseEntity<T>>error(
 						new UnsuccessfulResponseException(new ClientResponseEntity<>(r, responseType)));
